@@ -32,7 +32,6 @@ export default class App extends Component {
     }
 
     handleResize() {
-        console.log('handleResize');
 
         const windowHeight = $(window).height();
         const windowWidth = $(window).width();

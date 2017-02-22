@@ -87,7 +87,6 @@ export default class Chat extends Component {
     }
 
     onDisconnected(nick, loc) {
-        console.log('onDisconnected');
         const p = $('<p>');
         p.append($('<span class="join-by">').text(nick));
         if (loc) {
@@ -119,7 +118,6 @@ export default class Chat extends Component {
     }
 
     onJoined() {
-        console.log('onJoined');
         $('.messages').append(
             $('<p>').text('You have joined.').append($('<span class="key-info"> Keys are as follows: </span>'))
                 .append(
@@ -157,7 +155,6 @@ export default class Chat extends Component {
     }
 
     onJoin(nick, loc) {
-        console.log('onJoin');
         const p = $('<p>');
         p.append($('<span class="join-by">').text(nick));
         if (loc) {
@@ -181,14 +178,13 @@ export default class Chat extends Component {
         } catch (e) {
             console.error(e);
         }
-        this.socket.emit('join', data);
+        this.socket.emit('join', this.nick);
         $('body').addClass('joined');
         $('.input').addClass('joined');
         $('.input form input')
             .attr('placeholder', 'type in to chat')
             .blur();
         this.joined = true;
-        console.log('joined');
     }
 
     onConnections(total) {
