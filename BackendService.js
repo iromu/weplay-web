@@ -7,6 +7,7 @@ const logger = require('weplay-common').logger('weplay-web');
 const ioUrl = process.env.WEPLAY_IO_URL || 'http://localhost:3001';
 
 const EventBus = require('weplay-common').EventBus;
+const redis = require('weplay-common').redis();
 
 class BackendService {
 
@@ -21,7 +22,9 @@ class BackendService {
             port: discoveryPort,
             name: 'web',
             id: this.uuid,
-            clientListeners: [{name: 'rom', event: 'hash', handler: this.onRomHash.bind(this)}]
+            clientListeners: [
+                {name: 'rom', event: 'hash', handler: this.onRomHash.bind(this)}
+            ]
         }, ()=> {
             this.logger.info('BackendService connected to discovery server', {
                 discoveryUrl: discoveryUrl,
@@ -84,31 +87,26 @@ class BackendService {
     }
 
     // Cache default hash for the UI
-    onRomHash(hash) {
-        this.logger.info('BackendService.onRomHash', hash);
+    onRomHash(hashData) {
+        this.logger.info('BackendService.onRomHash', hashData);
         if (!this.defaultHash) {
-            this.defaultHash = hash;
+            this.defaultHash = hashData.hash;
         }
     }
 
     // TODO
     onScreenshot(req, res, next) {
-        redis.get('weplay:rom:default', (err, defaultHash) => {
-            if (err) {
+        redis.get('weplay:screenshot:DEFAULT', (err, image) => {
+            if (err || !image) {
                 return next(err);
             }
-            defaultHash = (defaultHash) ? defaultHash.toString() : 'DEFAULT';
-            redis.get(`weplay:frame:${defaultHash}`, (err, image) => {
-                if (err) {
-                    return next(err);
-                }
-                res.writeHead(200, {
-                    'Content-Type': 'image/png',
-                    'Content-Length': image.length
-                });
-                res.end(image);
+            res.writeHead(200, {
+                'Content-Type': 'image/png',
+                'Content-Length': image.length
             });
+            res.end(image);
         });
+
     }
 
     destroy() {
