@@ -31,7 +31,7 @@ class BackendService {
       })
 
       // TODO this.bus.emit('presence', 'connections:total')
-      this.bus.emit('rom', 'default:hash')
+      this.bus.emit('rom', 'defaulthash')
     })
 
     this.init()
@@ -107,7 +107,7 @@ class BackendService {
   }
 
   destroy() {
-    this.logger.info('PresenceService destroy()')
+    this.logger.info('BackendService destroy()')
   }
 }
 module.exports = BackendService
