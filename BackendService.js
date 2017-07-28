@@ -14,16 +14,12 @@ class BackendService {
     this.uuid = require('node-uuid').v4()
     this.logger = require('weplay-common').logger('weplay-web-service', this.uuid)
     this.discoveryUrl = discoveryUrl
-    this.defaultHash = undefined
     this.url = ioUrl
     this.bus = new EventBus({
       url: discoveryUrl,
       port: discoveryPort,
       name: 'web',
-      id: this.uuid,
-      clientListeners: [
-        {name: 'rom', event: 'hash', handler: this.onRomHash.bind(this)}
-      ]
+      id: this.uuid
     }, () => {
       this.logger.info('BackendService connected to discovery server', {
         discoveryUrl: discoveryUrl,
@@ -31,7 +27,6 @@ class BackendService {
       })
 
       // TODO this.bus.emit('presence', 'connections:total')
-      this.bus.emit('rom', 'defaulthash')
     })
 
     this.init()
@@ -67,29 +62,37 @@ class BackendService {
     })
 
     app.get('/', this.onIndex.bind(this))
+
+    app.get('/:id(\\d+)', this.onGameSelected.bind(this))
+
     // TODO
     app.get('/screenshot.png', this.onScreenshot.bind(this))
   }
 
   onIndex(req, res, next) {
-    logger.info('onIndex', {uiSocket: this.url, defaultHash: this.defaultHash})
+    logger.info('onIndex', {uiSocket: this.url})
+    res.render('index.mustache', {
+      img: this.image ? this.image.toString('base64') : null,
+      config: JSON.stringify({
+        img: this.image ? this.image.toString('base64') : null,
+        io: this.url,
+        connections: 0
+      })
+    })
+  }
+
+  onGameSelected(req, res, next) {
+    var id = req.params
+    logger.info('onGameSelected', {id: id, uiSocket: this.url})
     res.render('index.mustache', {
       img: this.image ? this.image.toString('base64') : null,
       config: JSON.stringify({
         img: this.image ? this.image.toString('base64') : null,
         io: this.url,
         connections: 0,
-        defaultHash: this.defaultHash
+        selection: id
       })
     })
-  }
-
-  // Cache default hash for the UI
-  onRomHash(hashData) {
-    this.logger.info('BackendService.onRomHash', hashData)
-    if (!this.defaultHash) {
-      this.defaultHash = hashData.hash
-    }
   }
 
   // TODO
