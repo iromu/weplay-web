@@ -135,7 +135,7 @@ export default class Chat extends Component {
                 .append('<br><span class="key-info">Numeric keys [1-4] changes game.</span><br>')
                 .append('<br><span class="key-info">Chat text containing [ UP | DOWN | LEFT | RIGHT | A | B | SELECT | START]  is parsed as commands.</span><br>')
                 .append('<br><span class="key-info">Make sure the chat input is not focused to perform moves with keys.</span><br> '
-                    + 'Input is throttled server side to prevent abuse. Catch \'em all!')
+                  + 'Input is throttled server side to prevent abuse.')
         );
 
         $('table.unjoined').removeClass('unjoined');

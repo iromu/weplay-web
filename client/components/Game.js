@@ -21,7 +21,13 @@ const command = {
   49: 'game#0',
   50: 'game#1',
   51: 'game#2',
-  52: 'game#3'
+  52: 'game#3',
+  53: 'game#4',
+  54: 'game#5',
+  55: 'game#6',
+  56: 'game#7',
+  57: 'game#8',
+  58: 'game#9'
 }
 export default class Game extends Component {
   constructor(props) {
