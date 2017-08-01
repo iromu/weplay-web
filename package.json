@@ -4,17 +4,18 @@
   "description": "collaborative gameboy emulation powered by socket.io – weplay.io",
   "dependencies": {
     "blob": "0.0.4",
-    "express": "4.15.2",
+    "express": "^4.15.3",
     "http": "0.0.0",
     "http-proxy": "^1.15.1",
     "jquery": "3.2.1",
-    "mustache-express": "1.2.4",
+    "mustache-express": "^1.2.5",
     "node-uuid": "^1.4.7",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
-    "react-loading": "0.1.2",
-    "socket.io-client": "2.0.1",
-    "weplay-common": "iromu/weplay-common#develop"
+    "react-loading": "^0.1.4",
+    "socket.io-client": "^2.0.3",
+    "webpack": "^3.4.1",
+    "weplay-common": "github:iromu/weplay-common#develop"
   },
   "devDependencies": {
     "babel-cli": "6.24.1",
@@ -27,15 +28,14 @@
     "babel-preset-react-hmre": "^1.1.1",
     "clean-webpack-plugin": "^0.1.14",
     "css-loader": "^0.28.1",
-    "eslint": "^3.19.0",
+    "eslint": "^4.3.0",
     "eslint-plugin-react": "^7.0.1",
     "node-sass": "^4.1.1",
     "react-hot-loader": "^1.3.0",
     "react-transform-hmr": "^1.0.4",
     "sass-loader": "^6.0.5",
-    "style-loader": "^0.17.0",
-    "webpack": "^2.5.1",
-    "webpack-dev-middleware": "^1.8.4",
+    "style-loader": "^0.18.2",
+    "webpack-dev-middleware": "^1.12.0",
     "webpack-hot-middleware": "^2.13.1"
   },
   "scripts": {
