@@ -11,7 +11,7 @@ const redis = require('weplay-common').redis()
 
 class BackendService {
   constructor(discoveryUrl, discoveryPort) {
-    this.uuid = require('node-uuid').v4()
+    this.uuid = require('uuid/v1')()
     this.logger = require('weplay-common').logger('weplay-web-service', this.uuid)
     this.discoveryUrl = discoveryUrl
     this.url = ioUrl

@@ -9,7 +9,7 @@
     "http-proxy": "^1.15.1",
     "jquery": "3.2.1",
     "mustache-express": "^1.2.5",
-    "node-uuid": "^1.4.7",
+    "uuid": "^3.1.0",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-loading": "^0.1.4",
@@ -18,7 +18,7 @@
     "weplay-common": "github:iromu/weplay-common#develop"
   },
   "devDependencies": {
-    "babel-cli": "6.24.1",
+    "babel-cli": "6.26.0",
     "babel-core": "^6.18.2",
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.0.0",

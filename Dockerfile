@@ -1,4 +1,4 @@
-FROM node:8
+FROM iromu/weplay-common:latest
 
 # Create app directory
 RUN mkdir -p /usr/src/app/web
@@ -8,8 +8,9 @@ COPY . .
 
 
 # Install app dependencies
-RUN npm install
-RUN npm run build
+RUN yarn
+RUN yarn link weplay-common
+RUN yarn run build
 
 # Setup environment
 ENV NODE_ENV production
