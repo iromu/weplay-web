@@ -37,7 +37,8 @@ export default class Game extends Component {
       loading: true,
       connections: config.connections,
       moveemu: '',
-      img: `data:image/png;base64,${config.img}`
+      img: `data:image/png;base64,${config.img}`,
+      audio: ''
     }
   }
 
@@ -48,6 +49,7 @@ export default class Game extends Component {
     this.socket.on('connection', this.onConnection.bind(this))
     this.socket.on('emumove', this.onEmuMove.bind(this))
     this.socket.on('frame', this.onFrame.bind(this))
+    this.socket.on('audio', this.onAudio.bind(this))
 
     bus.on('nick', (nick) => {
       this.nick = nick
@@ -124,6 +126,56 @@ export default class Game extends Component {
     this.setState({img: objectURL, loading: false})
   }
 
+  playAudioBuffer(buffer) {
+    var source = this.audioContext.createBufferSource()
+    source.buffer = buffer
+    source.connect(this.audioContext.destination)
+    source.start(0)
+  }
+
+  onAudio(audio) {
+    if (!this.audioContext) {
+      try {
+        var AudioContext = window.AudioContext || window.webkitAudioContext ||
+          window.mozAudioContext ||
+          window.oAudioContext ||
+          window.msAudioContext
+        this.audioContext = new AudioContext()
+      } catch (e) {
+        alert('Web Audio API is not supported in this browser')
+      }
+    }
+    var decodedBuffer = this.audioContext.decodeAudioData(audio, (callbackBuffer) => {
+      this.playAudioBuffer(callbackBuffer)
+    })
+    if (decodedBuffer) {
+      // Decoding was successful, do something useful with the audio buffer
+      if (typeof decodedBuffer.then === 'function') {
+        decodedBuffer.then((promisedBuffer) => {
+          this.playAudioBuffer(promisedBuffer)
+        })
+      } else {
+        this.playAudioBuffer(decodedBuffer)
+      }
+    } else {
+      console.log('Decoding the audio buffer failed')
+
+      // const blob = new Blob([audio], {type: 'audio/wav'})
+      // let objectURL = URL.createObjectURL(blob)
+      // this.audio = document.getElementById('audioId')
+      // this.setState({audio: objectURL, loading: false}, function () {
+      //   this.audio = document.getElementById('audioId')
+      //   // this.audio && this.audio.pause()
+      //   this.audio.load()
+      //   // this.audio.onload = function (evt) {
+      //   // this.audio.play()
+      //   // }
+      //   // this.refs.audio.play() }
+      // })
+    }
+    // document.getElementById('audio').play()
+  }
+
   onConnection() {
     console.log('onConnection')
     this.setState({loading: false})
@@ -136,6 +188,10 @@ export default class Game extends Component {
     else
       return (
         <div id="game">
+          {this.state.audio ?
+            <audio id="audioId" autoPlay>
+              <source src={`${this.state.audio}`} type="audio/wav"/>
+            </audio> : <audio id="audioId"/>}
           {this.state.img ? <img alt="game" src={`${this.state.img}`}/> : <img alt="game"/>}
           <i title="You can control the game with your keyboard"
              className="keyboard icon-keyboard-1">&nbsp;</i>
