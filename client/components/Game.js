@@ -3,6 +3,9 @@ import bus from '../EventService'
 import $ from 'jquery'
 import ReactLoading from 'react-loading'
 
+const AudioStreamWritable = require('web-audio-stream/writable')
+
+require('./Float32Array.concat')
 require('./game.scss')
 
 const map = {
@@ -29,6 +32,9 @@ const command = {
   57: 'game#8',
   48: 'game#9'
 }
+let AudioWorker = require('worker-loader?name=AudioWorker.[hash].js!./AudioWorker')
+let FrameWorker = require('worker-loader?name=FrameWorker.[hash].js!./FrameWorker')
+
 export default class Game extends Component {
   constructor(props) {
     super(props)
@@ -43,13 +49,34 @@ export default class Game extends Component {
   }
 
   componentDidMount() {
-
+    if (!this.audioContext) {
+      try {
+        var AudioContext = window.AudioContext || window.webkitAudioContext ||
+          window.mozAudioContext ||
+          window.oAudioContext ||
+          window.msAudioContext
+        this.audioContext = new AudioContext()
+      } catch (e) {
+        alert('Web Audio API is not supported in this browser')
+      }
+    }
+    this.frameWorker = new FrameWorker()
+    this.audioWorker = new AudioWorker()
     document.addEventListener('keydown', this.onKeyDown.bind(this), false)
-
+    this.audioWorker.addEventListener('message', (event) => {
+      this.onAudio(event.data)
+    })
+    this.frameWorker.addEventListener('message', (event) => {
+      this.onFrame(event.data)
+    })
     this.socket.on('connection', this.onConnection.bind(this))
     this.socket.on('emumove', this.onEmuMove.bind(this))
-    this.socket.on('frame', this.onFrame.bind(this))
-    this.socket.on('audio', this.onAudio.bind(this))
+    this.socket.on('frame', (data) => {
+      this.frameWorker.postMessage(data)
+    })
+    this.socket.on('audio', (data) => {
+      this.audioWorker.postMessage(data)
+    })
 
     bus.on('nick', (nick) => {
       this.nick = nick
@@ -114,15 +141,11 @@ export default class Game extends Component {
 
   }
 
-
   onEmuMove() {
     console.log('onEmuMove')
   }
 
-
-  onFrame(frame) {
-    const blob = new Blob([frame], {type: 'image/png'})
-    const objectURL = URL.createObjectURL(blob)
+  onFrame(objectURL) {
     this.setState({img: objectURL, loading: false})
   }
 
@@ -133,7 +156,24 @@ export default class Game extends Component {
     source.start(0)
   }
 
-  onAudio(audio) {
+  onAudio2(audio) {
+    if (!this.tempAudioBuffer) {
+      this.tempAudioBuffer = new ArrayBuffer()
+    }
+    if (!this.toWavArrayBufferCount) {
+      this.toWavArrayBufferCount = 0
+    }
+    this.tempAudioBuffer = this.tempAudioBuffer.concat(audio)
+    if (this.toWavArrayBufferCount && this.toWavArrayBufferCount === 1) {
+      this._onAudio(audio)
+      this.toWavArrayBufferCount = 0
+      this.tempAudioBuffer = new ArrayBuffer()
+    } else {
+      this.toWavArrayBufferCount++
+    }
+  }
+
+  onAudioX(audio) {
     if (!this.audioContext) {
       try {
         var AudioContext = window.AudioContext || window.webkitAudioContext ||
@@ -145,7 +185,11 @@ export default class Game extends Component {
         alert('Web Audio API is not supported in this browser')
       }
     }
-    var decodedBuffer = this.audioContext.decodeAudioData(audio, (callbackBuffer) => {
+    this.worker.postMessage(audio)
+  }
+
+  onAudio(audio) {
+    const decodedBuffer = this.audioContext.decodeAudioData(audio, (callbackBuffer) => {
       this.playAudioBuffer(callbackBuffer)
     })
     if (decodedBuffer) {
@@ -159,21 +203,24 @@ export default class Game extends Component {
       }
     } else {
       console.log('Decoding the audio buffer failed')
-
-      // const blob = new Blob([audio], {type: 'audio/wav'})
-      // let objectURL = URL.createObjectURL(blob)
-      // this.audio = document.getElementById('audioId')
-      // this.setState({audio: objectURL, loading: false}, function () {
-      //   this.audio = document.getElementById('audioId')
-      //   // this.audio && this.audio.pause()
-      //   this.audio.load()
-      //   // this.audio.onload = function (evt) {
-      //   // this.audio.play()
-      //   // }
-      //   // this.refs.audio.play() }
-      // })
     }
-    // document.getElementById('audio').play()
+  }
+
+  onAudioXX(audio) {
+    if (!this.writable) {
+      this.writable = AudioStreamWritable(this.audioContext.destination, {
+        context: this.audioContext,
+        channels: 2,
+        sampleRate: this.audioContext.sampleRate,
+
+        //BUFFER_MODE, SCRIPT_MODE, WORKER_MODE (pending web-audio-workers)
+        mode: AudioStreamWritable.BUFFER_MODE,
+
+        //disconnect node if input stream ends
+        autoend: false
+      })
+    }
+    this.writable.write(audio)
   }
 
   onConnection() {

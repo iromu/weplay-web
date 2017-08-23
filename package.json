@@ -9,11 +9,13 @@
     "http-proxy": "^1.15.1",
     "jquery": "3.2.1",
     "mustache-express": "^1.2.5",
-    "uuid": "^3.1.0",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-loading": "^0.1.4",
     "socket.io-client": "^2.0.3",
+    "socketio-shared-webworker": "github:IguMail/socketio-shared-webworker",
+    "uuid": "^3.1.0",
+    "web-audio-stream": "^3.0.1",
     "webpack": "^3.4.1",
     "weplay-common": "github:iromu/weplay-common#develop"
   },
@@ -36,7 +38,8 @@
     "sass-loader": "^6.0.5",
     "style-loader": "^0.18.2",
     "webpack-dev-middleware": "^1.12.0",
-    "webpack-hot-middleware": "^2.13.1"
+    "webpack-hot-middleware": "^2.13.1",
+    "worker-loader": "^0.8.1"
   },
   "scripts": {
     "start": "node index.js",
