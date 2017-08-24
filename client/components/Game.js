@@ -5,7 +5,17 @@ import ReactLoading from 'react-loading'
 
 const AudioStreamWritable = require('web-audio-stream/writable')
 
-require('./Float32Array.concat')
+const concat = function () {
+  const buffers = Array.prototype.slice.call(arguments)
+  const buffer1 = buffers[0]
+  const buffer2 = buffers[1]
+  const tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength)
+  tmp.set(new Uint8Array(buffer1), 0)
+  tmp.set(new Uint8Array(buffer2), buffer1.byteLength)
+  return tmp.buffer
+
+}
+
 require('./game.scss')
 
 const map = {
@@ -32,8 +42,8 @@ const command = {
   57: 'game#8',
   48: 'game#9'
 }
-let AudioWorker = require('worker-loader?name=AudioWorker.[hash].js!./AudioWorker')
-let FrameWorker = require('worker-loader?name=FrameWorker.[hash].js!./FrameWorker')
+let AudioWorker = require('worker-loader?name=AudioWorker.[hash].js!../workers/AudioWorker')
+let FrameWorker = require('worker-loader?name=FrameWorker.[hash].js!../workers/FrameWorker')
 
 export default class Game extends Component {
   constructor(props) {
@@ -46,6 +56,8 @@ export default class Game extends Component {
       img: `data:image/png;base64,${config.img}`,
       audio: ''
     }
+    this.toWavArrayBufferCount = 0
+    this.tempAudioBuffer = new Float32Array()
   }
 
   componentDidMount() {
@@ -64,8 +76,17 @@ export default class Game extends Component {
     this.audioWorker = new AudioWorker()
     document.addEventListener('keydown', this.onKeyDown.bind(this), false)
     this.audioWorker.addEventListener('message', (event) => {
-      this.onAudio(event.data)
+      this.tempAudioBuffer = concat(this.tempAudioBuffer, event.data)
+      this.toWavArrayBufferCount++
     })
+    setInterval(() => {
+      if (this.toWavArrayBufferCount > 0) {
+        // this.playAudioBuffer(this.tempAudioBuffer)
+        this.onAudio(this.tempAudioBuffer)
+        this.toWavArrayBufferCount = 0
+        this.tempAudioBuffer = new Float32Array()
+      }
+    }, 10)
     this.frameWorker.addEventListener('message', (event) => {
       this.onFrame(event.data)
     })
@@ -154,38 +175,6 @@ export default class Game extends Component {
     source.buffer = buffer
     source.connect(this.audioContext.destination)
     source.start(0)
-  }
-
-  onAudio2(audio) {
-    if (!this.tempAudioBuffer) {
-      this.tempAudioBuffer = new ArrayBuffer()
-    }
-    if (!this.toWavArrayBufferCount) {
-      this.toWavArrayBufferCount = 0
-    }
-    this.tempAudioBuffer = this.tempAudioBuffer.concat(audio)
-    if (this.toWavArrayBufferCount && this.toWavArrayBufferCount === 1) {
-      this._onAudio(audio)
-      this.toWavArrayBufferCount = 0
-      this.tempAudioBuffer = new ArrayBuffer()
-    } else {
-      this.toWavArrayBufferCount++
-    }
-  }
-
-  onAudioX(audio) {
-    if (!this.audioContext) {
-      try {
-        var AudioContext = window.AudioContext || window.webkitAudioContext ||
-          window.mozAudioContext ||
-          window.oAudioContext ||
-          window.msAudioContext
-        this.audioContext = new AudioContext()
-      } catch (e) {
-        alert('Web Audio API is not supported in this browser')
-      }
-    }
-    this.worker.postMessage(audio)
   }
 
   onAudio(audio) {

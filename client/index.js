@@ -3,6 +3,7 @@ import {render} from 'react-dom'
 import React from 'react'
 // eslint-disable-next-line no-unused-vars
 import App from './components/App'
+import SocketBroker from './SocketBroker'
 // import SocketWrapper from './SocketWrapper'
 //
 // let SocketWorker = require('worker-loader?name=SocketWorker.[hash].js!./SocketWorker')
@@ -19,9 +20,9 @@ import App from './components/App'
 //
 // const socket = wio(config.io);
 // socket.setWorker('node_modules/socketio-shared-webworker/shared-worker.js')
-import io from 'socket.io-client'
+// import io from 'socket.io-client'
+let socket = new SocketBroker(config.io)
 
-const socket = io(config.io)
 const containerEl = document.getElementById('app')
 require('./components/app.scss')
 
@@ -31,7 +32,6 @@ render(
 )
 
 let onFirstTouch = () => {
-
   try {
     var AudioContext = window.AudioContext || window.webkitAudioContext ||
       window.mozAudioContext ||
@@ -58,3 +58,6 @@ let onFirstTouch = () => {
 }
 
 window.addEventListener('touchstart', onFirstTouch, false)
+window.addEventListener('load', () => {
+  socket.start()
+}, false)
