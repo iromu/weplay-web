@@ -1,6 +1,6 @@
 import io from 'socket.io-client'
 
-let SocketWorker = require('shared-worker-loader!./workers/SocketWorker.js')
+let SocketWorker = require('worker-loader?name=SocketWorker.[hash].js!./workers/SocketWorker')
 
 class SocketBrokerPrivate {
   constructor(uri, onConnect, onDisConnect) {
@@ -14,13 +14,7 @@ class SocketBrokerPrivate {
   }
 
   getKeys(obj) {
-    const keys = []
-    for (const i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        keys.push(i)
-      }
-    }
-    return keys
+    return Reflect.ownKeys(obj)
   }
 
   onMessage(type, message) {
@@ -28,16 +22,15 @@ class SocketBrokerPrivate {
   }
 
   startWorker() {
-    this.worker = new SocketWorker(this.uri)
-    this.worker.port.start()
-    this.worker.port.addEventListener('message', (event) => {
+    this.worker = new SocketWorker()
+    this.worker.addEventListener('message', (event) => {
       this.onMessage(event.data.type, event.data.message)
     }, false)
 
     this.worker.onerror = (evt) => {
       if (this.onError) this.onError(evt)
     }
-    this.worker.port.postMessage({events: this.getKeys(this.events)})
+    this.worker.postMessage({uri: this.uri, events: this.getKeys(this.events)})
   }
 
   startSocketIo() {
@@ -63,18 +56,14 @@ export default class SocketBroker extends SocketBrokerPrivate {
 
   emit(eventName, data) {
     if (this.worker) {
-      this.worker.port.postMessage({event: eventName, data: data})
+      this.worker.postMessage({event: eventName, data: data})
     } else {
       this.socket.emit(eventName, data)
     }
   }
 
   start() {
-    if (!SharedWorker) {
-      this.startSocketIo()
-    } else {
-      this.startWorker()
-    }
+    this.startWorker()
   }
 
   onError(cbk) {

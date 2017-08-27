@@ -1,0 +1,100 @@
+#gamepad {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background: rgb(250, 250, 250);
+}
+
+.d-pad, .d-pad:before, .d-pad:after {
+  content: '';
+  position: absolute;
+  top: 3em;
+  left: 2em;
+  display: block;
+  width: 4.75em;
+  height: 1.75em;
+  background: rgba(56, 61, 66, 1);
+  border-radius: 0.15em;
+  box-shadow: 0 0 0 0.25em rgba(178, 178, 179, 1);
+}
+
+.d-pad:before {
+  top: -1.5em;
+  left: 1.5em;
+  width: 1.75em;
+  height: 4.75em;
+  box-shadow: inset 0.875em 0 rgba(0, 0, 0, 0.2),
+  0 0 0 0.25em rgba(178, 178, 179, 1);
+}
+
+.d-pad:after {
+  top: 0;
+  left: 0;
+  box-shadow: inset 2.375em 0 rgba(0, 0, 0, 0.2);
+}
+
+.select, .start {
+  &:hover {
+    transform: rotatex(20deg) translatey(2px);
+    box-shadow: 0px 5px 0px rgba(0, 0, 0, .7);
+  }
+  position: absolute;
+  top: 3em;
+  left: 7.65em;
+  width: 3.5em;
+  height: 2.5em;
+  background: rgba(178, 178, 179, 1);
+  border-radius: 0.25em 0 0 0.25em;
+  padding-top: 0.5em;
+  padding-left: 0.5em;
+}
+
+.start {
+  left: 11.15em;
+  background: rgba(224, 224, 225, 1);
+  border-radius: 0 0.25em 0.25em 0;
+}
+
+.start:before {
+  margin-left: -0.15em;
+}
+
+.b-button, .a-button {
+  cursor: 'pointer'; // need to add a CSS cursor:'pointer' so that mobile phones (iOS devices specifically) fire native click event on the element.
+  position: absolute;
+  top: 2em;
+  right: 5em;
+  width: 4em;
+  height: 4em;
+  background: rgba(224, 224, 225, 1);
+  border-radius: 0.25em;
+  &:focus {
+    transform: rotatex(20deg) translatey(2px);
+    box-shadow: 0px 5px 0px rgba(0, 0, 0, .7);
+  }
+}
+
+.a-button {
+  right: 0.5em;
+}
+
+.b-button:before, .a-button:before {
+  content: '';
+  display: block;
+  width: 3.25em;
+  height: 3.25em;
+  margin: 0.375em;
+  background: rgba(214, 73, 128, 1);
+  border-radius: 50%;
+  text-align: center;
+  color: white;
+  box-shadow: inset 15.125em 0 0 -14em rgba(0, 0, 0, 0.2);
+}
+
+.b-button:before {
+  content: 'B';
+}
+
+.a-button:before {
+  content: 'A';
+}

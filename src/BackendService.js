@@ -1,18 +1,19 @@
-const mustache = require('mustache-express')
-const express = require('express')
+import mustache from 'mustache-express'
+import express from 'express'
+import {EventBus, LoggerFactory} from 'weplay-common'
+
 const env = process.env.NODE_ENV || 'development'
 const port = process.env.WEPLAY_PORT || 3000
-const logger = require('weplay-common').logger('weplay-web')
+const logger = LoggerFactory.get('weplay-web')
 
 const ioUrl = process.env.WEPLAY_IO_URL || 'http://localhost:3001'
 
-const EventBus = require('weplay-common').EventBus
 const redis = require('weplay-common').redis()
 
 class BackendService {
   constructor(discoveryUrl, discoveryPort) {
     this.uuid = require('uuid/v1')()
-    this.logger = require('weplay-common').logger('weplay-web-service', this.uuid)
+    this.logger = LoggerFactory.get('weplay-web-service', this.uuid)
     this.discoveryUrl = discoveryUrl
     this.url = ioUrl
     this.bus = new EventBus({
@@ -22,7 +23,7 @@ class BackendService {
       id: this.uuid
     }, () => {
       this.logger.info('BackendService connected to discovery server', {
-        discoveryUrl: discoveryUrl,
+        discoveryUrl,
         uuid: this.uuid
       })
 
@@ -42,7 +43,7 @@ class BackendService {
     app.set('views', `${__dirname}/views`)
     if (env === 'development') {
       const webpack = require('webpack')
-      const webpackConfig = require('./webpack.config.dev')
+      const webpackConfig = require('../webpack.config.dev')
 
       const compiler = webpack(webpackConfig)
 
@@ -82,8 +83,8 @@ class BackendService {
   }
 
   onGameSelected(req, res, next) {
-    var id = req.params
-    logger.info('onGameSelected', {id: id, uiSocket: this.url})
+    const id = req.params
+    logger.info('onGameSelected', {id, uiSocket: this.url})
     res.render('index.mustache', {
       img: this.image ? this.image.toString('base64') : null,
       config: JSON.stringify({
@@ -113,4 +114,5 @@ class BackendService {
     this.logger.info('BackendService destroy()')
   }
 }
-module.exports = BackendService
+
+export default BackendService

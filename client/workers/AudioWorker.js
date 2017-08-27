@@ -1,3 +1,7 @@
+// import AudioUtils from '../workers/lib/AudioUtils'
+
+// const audioUtils = new AudioUtils()
+
 const concat = function () {
   const buffers = Array.prototype.slice.call(arguments)
   const buffer1 = buffers[0]

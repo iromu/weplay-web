@@ -32,6 +32,7 @@ render(
 )
 
 let onFirstTouch = () => {
+  console.log('onFirstTouch')
   try {
     var AudioContext = window.AudioContext || window.webkitAudioContext ||
       window.mozAudioContext ||

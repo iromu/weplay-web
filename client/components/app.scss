@@ -20,84 +20,37 @@ body {
   }
 }
 
-body.touch {
-  table.keys, .key-info {
-    display: none;
-  }
-  #game {
-    .screen-keys {
-      cursor: pointer;
-      display: block;
-      opacity: 0.5;
-      color: blue;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      padding: 20px;
-      border-collapse: collapse;
-      margin-top: 15px;
-      td {
-        &.highlight {
-          background-color: #a9a9a9;
-        }
-        &.pressed {
-          background-color: red;
-        }
-        border: 3px solid #333;
-        margin-top: 5px;
-        padding: 10px;
-        background-color: rgba(255, 255, 255, 0.5);
-        color: rgba(0, 0, 0, 0.5);
-        text-align: center;
-      }
-    }
-    #keys td {
-      display: inline-block;
-      &.round {
-        height: 50px;
-        width: 50px;
-        border-radius: 50%;
-        -webkit-border-radius: 50%;
-        -webkit-border-radius: 50px;
-        -moz-border-radius: 50%;
-        -o-border-radius: 50%;
-        -ms-border-radius: 50%;
-      }
-    }
-    #mov-keys {
-      &.screen-keys td.empty-cell {
-        border: 0px;
-        visibility: hidden;
-      }
-      bottom: 0px;
-      position: absolute;
-    }
-    #keys {
-      bottom: 0px;
-      right: 0px;
-      position: absolute;
-    }
-  }
+#gamepad {
+  width: 100%;
+  height: 20em;
+  position: relative;
+  background: rgb(250, 250, 250);
 }
-
 /* Responsive overwrites */
 @media screen and (max-width: 500px) {
+  body {
+    background: rgb(255, 255, 255);
+  }
+  #gamepad {
+    width: 100%;
+    height: 20%;
+    position: relative;
+    background: rgb(250, 250, 250);
+  }
   #game {
     width: 100%;
-    height: 80%;
+    position: relative;
     img {
-      height: 50%;
+      height: 80%;
       /* reset to 100% in js upon load */
       width: 100%;
     }
+    .keyboard {
+      display: none;
+    }
   }
   #chat {
-    width: 100%;
-    height: 20%;
-    overflow: auto;
+    display: none;
   }
 }
 

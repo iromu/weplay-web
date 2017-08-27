@@ -8,19 +8,26 @@ import $ from 'jquery'
 export default class App extends Component {
   constructor(props) {
     super(props)
-    this.state = {data: {}}
+    this.state = {data: {}, loading: true}
     this.socket = props.socket
-
   }
 
   componentDidMount() {
     this.socket.on('reload', this.onReload.bind(this))
     window.addEventListener('resize', this.handleResize)
+    window.addEventListener('load', this.handleResize)
     this.handleResize()
+    setTimeout(this.handleResize, 1000)
+    this.socket.on('connection', this.onConnection.bind(this))
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize)
+  }
+
+  onConnection() {
+    console.log('onConnection')
+    this.setState({loading: false})
   }
 
   onReload() {
@@ -35,11 +42,15 @@ export default class App extends Component {
     const windowHeight = $(window).height()
     const windowWidth = $(window).width()
     if (windowWidth <= 500) {
-      $('#chat, #game').css('height', windowHeight / 2)
-      $('.input input').css('width', windowWidth - 40)
-      $('.messages').css('height', windowHeight / 2 - 70)
+      $('#game').css('height', windowHeight)
+      $('#game>img').css('height', windowHeight * 0.75)
+      $('#gamepad').css('height', windowHeight * 0.2)
+      $('#chat').css('display', 'none')
+      $('.input input').css('display', 'none')
+      $('.messages').css('display', 'none')
     } else {
       $('#chat, #game').css('height', windowHeight)
+      $('#gamepad').css('display', 'none')
       $('.input input').css('width', $('.input').width())
       $('.messages').css('height', $('#chat').height() - 70)
     }

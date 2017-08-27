@@ -1,5 +1,6 @@
 
 #game {
+  overflow: hidden;
   position: relative;
   width: 50%;
   height: 100%;
@@ -9,8 +10,10 @@
   }
 }
 
-body.touch #game table.unjoined {
-  display: none;
+@media screen and (max-width: 500px) {
+  #game table.unjoined {
+    display: none;
+  }
 }
 
 #game {

@@ -10,11 +10,11 @@
     "i": "^0.3.5",
     "jquery": "3.2.1",
     "mustache-express": "^1.2.5",
+    "nipplejs": "^0.6.7",
     "npm": "^5.3.0",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-loading": "^0.1.4",
-
     "socket.io-client": "^2.0.3",
     "socketio-shared-webworker": "github:IguMail/socketio-shared-webworker",
     "uuid": "^3.1.0",
@@ -42,13 +42,19 @@
     "style-loader": "^0.18.2",
     "webpack-dev-middleware": "^1.12.0",
     "webpack-hot-middleware": "^2.13.1",
-    "worker-loader": "^0.8.1",
-    "shared-worker-loader": "^0.2.0"
+    "worker-loader": "^0.8.1"
   },
   "scripts": {
-    "start": "node index.js",
-    "build": "NODE_ENV=production webpack --config ./webpack.config.prod.js",
-    "lint": "./node_modules/weplay-common/node_modules/.bin/eslint report ."
+    "start": "node build/index.js",
+    "start:dev": "babel-node src/index.js",
+    "lint": "./node_modules/.bin/eslint report/lint src",
+    "plato": "./node_modules/.bin/es6-plato -r -d report/plato src",
+    "test": "NODE_ENV=test ./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- --compilers js:babel-register",
+    "tdd:mac": "NODE_ENV=test ./node_modules/.bin/mocha -w",
+    "build:client": "NODE_ENV=production webpack --config ./webpack.config.prod.js",
+    "build:server": "babel src -d build",
+    "build": "npm run build:client && npm run build:server",
+    "prepublish": "npm run build"
   },
   "engines": {
     "node": ">=8.0.0"
