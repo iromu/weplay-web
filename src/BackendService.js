@@ -40,7 +40,7 @@ class BackendService {
     app.listen(port)
 
     app.engine('mustache', mustache())
-    app.set('views', `${__dirname}/views`)
+    app.set('views', `${__dirname}/../views`)
     if (env === 'development') {
       const webpack = require('webpack')
       const webpackConfig = require('../webpack.config.dev')
@@ -53,7 +53,7 @@ class BackendService {
       }))
       app.use(require('webpack-hot-middleware')(compiler))
     }
-    app.use(express.static(`${__dirname}/public`))
+    app.use(express.static(`${__dirname}/../public`))
 
     app.use((req, res, next) => {
       req.socket.on('error', err => {
