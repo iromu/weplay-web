@@ -48,12 +48,14 @@ export default class Game extends Component {
       audio: ''
     }
     this.toWavArrayBufferCount = 0
+    this.currentStartTime = 0
     this.tempAudioBuffer = new Float32Array()
   }
 
   moveHandler(move) {
     this.setState({move: move})
   }
+
   componentDidMount() {
     if (!this.audioContext) {
       try {
@@ -136,18 +138,27 @@ export default class Game extends Component {
   }
 
   playAudioBuffer(buffer) {
+    if (this.prevSource) {
+      this.prevSource.stop(0)
+    }
     var source = this.audioContext.createBufferSource()
     source.buffer = buffer
     source.connect(this.audioContext.destination)
     source.loop = true
-    if (this.prevSource) {
-      this.prevSource.stop(0)
+    var now = this.audioContext.currentTime
+    if (this.currentStartTime < now) {
+      this.currentStartTime = now
     }
-    source.start(0)
+    source.start(this.currentStartTime)
+    this.currentStartTime += buffer.duration
     this.prevSource = source
+    // this.prevSource.stop(this.currentStartTime)
   }
 
   decodeWav(audio) {
+    if (this.prevSource) {
+      this.prevSource.stop(0)
+    }
     this.audioContext.decodeAudioData(audio, (callbackBuffer) => {
       this.playAudioBuffer(callbackBuffer)
     })
