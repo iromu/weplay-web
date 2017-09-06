@@ -50,6 +50,9 @@ export default class Game extends Component {
     this.toWavArrayBufferCount = 0
     this.currentStartTime = 0
     this.tempAudioBuffer = new Float32Array()
+    if (window.localStorage && localStorage.command) {
+      this.command = localStorage.command
+    }
   }
 
   moveHandler(move) {
@@ -72,21 +75,12 @@ export default class Game extends Component {
     this.audioWorker = new AudioWorker()
     document.addEventListener('keydown', this.onKeyDown.bind(this), false)
     this.audioWorker.addEventListener('message', (event) => {
-      // this.tempAudioBuffer = concat(this.tempAudioBuffer, event.data)
-      // this.toWavArrayBufferCount++
       this.decodeWav(event.data)
     })
-    // setInterval(() => {
-    //   if (this.toWavArrayBufferCount > 0) {
-    //     // this.playAudioBuffer(this.tempAudioBuffer)
-    //     this.decodeWav(this.tempAudioBuffer)
-    //     this.toWavArrayBufferCount = 0
-    //     this.tempAudioBuffer = new Float32Array()
-    //   }
-    // }, 40)
     this.frameWorker.addEventListener('message', (event) => {
       this.onFrame(event.data)
     })
+    this.socket.on('connect', this.onConnect.bind(this))
     this.socket.on('emumove', this.onEmuMove.bind(this))
     this.socket.on('frame', (data) => {
       this.frameWorker.postMessage(data)
@@ -94,7 +88,6 @@ export default class Game extends Component {
     this.socket.on('audio', (data) => {
       this.audioWorker.postMessage(data)
     })
-
     bus.on('nick', (nick) => {
       this.nick = nick
     })
@@ -109,6 +102,12 @@ export default class Game extends Component {
     // this.socket.emit('move', this.state.move)
   }
 
+  onConnect() {
+    if (this.command) {
+      this.socket.emit('command', this.command)
+    }
+  }
+
   onKeyDown(ev) {
     const code = ev.keyCode
     if ($('body').hasClass('input_focus')) {
@@ -118,6 +117,7 @@ export default class Game extends Component {
       ev.preventDefault()
       this.setState({move: map[code]})
       this.socket.emit('move', map[code])
+      bus.emit('move', map[code])
     }
     if (command[code]) {
       // this.setState({loading: true})
@@ -125,7 +125,17 @@ export default class Game extends Component {
       if (this.prevSource) {
         this.prevSource.stop(0)
       }
+      // Try-catch necessary because Safari might have locked setItem causing
+      // exception
+      try {
+        if (window.localStorage) {
+          localStorage.command = command[code]
+        }
+      } catch (e) {
+        console.error(e)
+      }
       this.socket.emit('command', command[code])
+      bus.emit('command', command[code])
     }
   }
 
@@ -167,7 +177,7 @@ export default class Game extends Component {
   render() {
     if (this.state.loading) {
       return (<div id="game"><ReactLoading type='cylon' color='#e3e3e3'/></div>)
-    } else
+    } else {
       return (
         <div id="game">
           {this.state.img ? <img alt="game" src={`${this.state.img}`}/> : <img alt="game"/>}
@@ -182,5 +192,6 @@ export default class Game extends Component {
           <GamePad socket={this.socket} moveHandler={this.moveHandler}/>
         </div>
       )
+    }
   }
 }

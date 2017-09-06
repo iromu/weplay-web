@@ -5,7 +5,6 @@ import $ from 'jquery'
 require('./chat.scss')
 
 export default class Chat extends Component {
-
   constructor(props) {
     super(props)
     this.state = {value: ''}
@@ -16,9 +15,10 @@ export default class Chat extends Component {
     this.nick = undefined
     if (window.localStorage && localStorage.nick) {
       this.nick = localStorage.nick
-      bus.emit('nick', this.nick)
     }
-
+    if (window.localStorage && localStorage.command) {
+      this.command = localStorage.command
+    }
   }
 
   componentDidMount() {
@@ -111,6 +111,10 @@ export default class Chat extends Component {
     this.message('Connected!')
     if (this.nick) {
       this.join(this.nick)
+    }
+
+    if (this.command) {
+      this.socket.emit('command', this.command)
     }
   }
 
